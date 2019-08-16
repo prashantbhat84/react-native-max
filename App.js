@@ -8,43 +8,41 @@ import {
   ScrollView,
   FlatList
 } from 'react-native';
+import GoalItem from './components/GoalItem';
+import GoalInput from './components/GoalInput';
 
 export default function App() {
-  const [Goal, setGoal] = useState('');
   const [courseGoals, setCourseGoals] = useState([]);
-  const goalInputHandler = setEnteredText => {
-    setGoal(setEnteredText);
-  };
-  const addGoalHandler = () => {
+
+  const addGoalHandler = goalTitle => {
     //setCourseGoals([...courseGoals,Goal]);
     setCourseGoals(currentGoals => [
       ...currentGoals,
-      { id: Math.random().toString(), value: Goal }
+      { id: Math.random().toString(), value: goalTitle }
     ]);
   };
+  const removeGoalHandler = id => {
+    setCourseGoals(currentGoals => {
+      return currentGoals.filter(goal => goal.id !== id);
+    });
+  };
+
   return (
     <View style={styles.screen}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder='Enter your Goal'
-          placeholderTextColor='black'
-          style={styles.inputBox}
-          onChangeText={goalInputHandler}
-          value={Goal}
-        />
-        <Button title='Add' onPress={addGoalHandler} />
-      </View>
-      <View>
-        <FlatList
-          keyExtractor={(item, index) => item.id}
-          data={courseGoals}
-          renderItem={itemData => (
-            <View style={styles.listItem}>
-              <Text>{itemData.item.value}</Text>
-            </View>
-          )}
-        />
-      </View>
+      <GoalInput onAddGoal={addGoalHandler} />
+
+      <FlatList
+        keyExtractor={(item, index) => item.id}
+        data={courseGoals}
+        renderItem={itemData => (
+          <GoalItem
+            //onDelete={removeGoalHandler.bind(this, itemData.item.id)} method 1 for delete
+            id={itemData.item.id}
+            onDelete={removeGoalHandler}
+            title={itemData.item.value}
+          />
+        )}
+      />
     </View>
   );
 }
@@ -62,12 +60,5 @@ const styles = StyleSheet.create({
     borderColor: 'red',
     borderWidth: 1,
     width: '80%'
-  },
-  listItem: {
-    padding: 10,
-    marginVertical: 10,
-    backgroundColor: '#ccc',
-    borderColor: 'black',
-    borderWidth: 1
   }
 });
